@@ -11,3 +11,4 @@ public class DemoApplication {
 	}
 
 }
+//@ComponentScan(basePackageClasses = MainController.class)
