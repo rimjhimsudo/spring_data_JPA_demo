@@ -2,7 +2,9 @@ package com.springwithmysqldemo.sqlspringdemo.controller;
 
 import com.springwithmysqldemo.sqlspringdemo.model.CustomerModel;
 import com.springwithmysqldemo.sqlspringdemo.repository.CustomerRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 //@RequestMapping(path="/customersql") // This means URL's start with /demo (after Application path)
@@ -36,4 +38,15 @@ public class MainController{
         // This returns a JSON or XML with the users
         return (List<CustomerModel>) customerRepository.findAll();
     }
+
+    /* File controller REST API*/
+    @PostMapping("/upload-file")
+    public ResponseEntity<String> uploadFile(@RequestParam("file")MultipartFile file){
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize()); //returns in bytes
+        System.out.println(file.getContentType());
+        System.out.println(file.getName());
+        return ResponseEntity.ok("Working");
+    }
+
 }
