@@ -1,7 +1,10 @@
 package com.springwithmysqldemo.sqlspringdemo.controller;
 
+import com.springwithmysqldemo.sqlspringdemo.helper.FileUploadHelper;
 import com.springwithmysqldemo.sqlspringdemo.model.CustomerModel;
 import com.springwithmysqldemo.sqlspringdemo.repository.CustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,13 +43,39 @@ public class MainController{
     }
 
     /* File controller REST API*/
+    @Autowired
+    private FileUploadHelper fileUploadHelper;
     @PostMapping("/upload-file")
     public ResponseEntity<String> uploadFile(@RequestParam("file")MultipartFile file){
         System.out.println(file.getOriginalFilename());
         System.out.println(file.getSize()); //returns in bytes
         System.out.println(file.getContentType());
         System.out.println(file.getName());
-        return ResponseEntity.ok("Working");
+        try {
+
+
+            //validation
+            if (file.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File not found");
+            }
+            //validation
+            if (!file.getContentType().equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("only excel sheet file are allowed");
+            }
+            //upload file now
+            //requirements :
+            // 1.where to upload file on server i.e. upload dir now dir cn be outside project and inside project also
+            boolean uploadsuccess=fileUploadHelper.uploadFile(file);
+            if(uploadsuccess){
+                return ResponseEntity.ok("File is successfully uploaded");
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong, try again!");
     }
 
 }
