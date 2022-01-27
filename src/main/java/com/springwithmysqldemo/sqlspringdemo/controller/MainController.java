@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 //@RequestMapping(path="/customersql") // This means URL's start with /demo (after Application path)
@@ -67,7 +68,9 @@ public class MainController{
             // 1.where to upload file on server i.e. upload dir now dir cn be outside project and inside project also
             boolean uploadsuccess=fileUploadHelper.uploadFile(file);
             if(uploadsuccess){
-                return ResponseEntity.ok("File is successfully uploaded");
+                //return ResponseEntity.ok("File is successfully uploaded");
+                return ResponseEntity.ok(ServletUriComponentsBuilder.fromCurrentContextPath().path("/employeeData/").path(file.getOriginalFilename()).toUriString());
+                //http://localhost:8080/employeeData/EmployeeData.xlsx  hitt this on browser and yu will get employeeData
             }
         }
         catch(Exception e){
