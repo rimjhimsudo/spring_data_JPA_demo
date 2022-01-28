@@ -1,7 +1,9 @@
 package com.springwithmysqldemo.sqlspringdemo.controller;
 
+import com.springwithmysqldemo.sqlspringdemo.helper.ExcelFileuploadHelper;
 import com.springwithmysqldemo.sqlspringdemo.helper.FileUploadHelper;
 import com.springwithmysqldemo.sqlspringdemo.model.CustomerModel;
+import com.springwithmysqldemo.sqlspringdemo.model.Employee;
 import com.springwithmysqldemo.sqlspringdemo.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 //@RequestMapping(path="/customersql") // This means URL's start with /demo (after Application path)
 
@@ -46,15 +51,13 @@ public class MainController{
     /* File controller REST API*/
     @Autowired
     private FileUploadHelper fileUploadHelper;
-    @PostMapping("/upload-file")
-    public ResponseEntity<String> uploadFile(@RequestParam("file")MultipartFile file){
+
+    public ResponseEntity<String> upload(@RequestParam("file")MultipartFile file){
         System.out.println(file.getOriginalFilename());
         System.out.println(file.getSize()); //returns in bytes
         System.out.println(file.getContentType());
         System.out.println(file.getName());
         try {
-
-
             //validation
             if (file.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File not found");
@@ -80,5 +83,20 @@ public class MainController{
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong, try again!");
     }
+    @Autowired
+    private ExcelFileuploadHelper excelFileuploadHelper;
+    @PostMapping("/upload-file-store")
+    public ResponseEntity<String> uploadAndStore(@RequestParam("file")MultipartFile file) {
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize()); //returns in bytes
+        System.out.println(file.getContentType());
+        System.out.println(file.getName());
+        //save in database
+        //InputStream inputStream=file.getInputStream();
+        List<Employee> employeeList=excelFileuploadHelper.excelToList(file);
+        System.out.println(employeeList.size());
+        return ResponseEntity.ok("working fine::");
+    }
+
 
 }
