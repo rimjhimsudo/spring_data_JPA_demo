@@ -5,6 +5,8 @@ import com.springwithmysqldemo.sqlspringdemo.helper.FileUploadHelper;
 import com.springwithmysqldemo.sqlspringdemo.model.CustomerModel;
 import com.springwithmysqldemo.sqlspringdemo.model.Employee;
 import com.springwithmysqldemo.sqlspringdemo.repository.CustomerRepository;
+import com.springwithmysqldemo.sqlspringdemo.service.EmployeeService;
+import org.apache.commons.collections4.functors.ExceptionPredicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +36,6 @@ public class MainController{
             , @RequestParam String email) {
         // @ResponseBody means the returned String is the response, not a view name
         // @RequestParam means it is a parameter from the GET or POST request
-
         CustomerModel cusmodel = new CustomerModel();
         cusmodel.setName(name);
         cusmodel.setEmail(email);
@@ -85,6 +86,9 @@ public class MainController{
     }
     @Autowired
     private ExcelFileuploadHelper excelFileuploadHelper;
+    List<Employee> employeeList;
+    @Autowired
+    EmployeeService employeeService;
     @PostMapping("/upload-file-store")
     public ResponseEntity<String> uploadAndStore(@RequestParam("file")MultipartFile file) {
         System.out.println(file.getOriginalFilename());
@@ -92,11 +96,26 @@ public class MainController{
         System.out.println(file.getContentType());
         System.out.println(file.getName());
         //save in database
-        //InputStream inputStream=file.getInputStream();
-        List<Employee> employeeList=excelFileuploadHelper.excelToList(file);
-        System.out.println(employeeList.size());
+        employeeList=excelFileuploadHelper.excelToList(file);
+        employeeService.save(employeeList);
+        System.out.println("employeeList.size : " +employeeList.size());
         return ResponseEntity.ok("working fine::");
     }
+    @GetMapping("/get-employees")
+    public ResponseEntity<List<Employee>> getAllEmployee(){
+        try {
+            List<Employee> employeeList = employeeService.getAllEmployee();
+            if (employeeList.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(employeeList, HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 
 }
